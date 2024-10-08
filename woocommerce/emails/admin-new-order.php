@@ -23,10 +23,9 @@ defined( 'ABSPATH' ) || exit;
 do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 
 <?php /* translators: %s: Customer billing full name */ ?>
-
-    <p><?php printf( esc_html__( 'You’ve received the following order from %s:', 'woocommerce' ), $order->get_formatted_billing_full_name() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
-
+<p><?php printf( esc_html__( 'You’ve received the following order from %s:', 'woocommerce' ), $order->get_formatted_billing_full_name() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
 <?php
+
 /*
  * @hooked WC_Emails::order_details() Shows the order details table.
  * @hooked WC_Structured_Data::generate_order_data() Generates structured data.
@@ -39,25 +38,20 @@ do_action( 'woocommerce_email_order_details', $order, $sent_to_admin, $plain_tex
  * @hooked WC_Emails::order_meta() Shows order meta data.
  */
 do_action( 'woocommerce_email_order_meta', $order, $sent_to_admin, $plain_text, $email );
-
+//echo "@@@@@@@@@start";
 /*
- * Custom code to show only the shipping address
+ * @hooked WC_Emails::customer_details() Shows customer details
+ * @hooked WC_Emails::email_address() Shows email address
  */
-if ( ! wc_ship_to_billing_address_only() && $order->needs_shipping_address() ){ ?>
-
-    <h2><?php esc_html_e( 'Shipping address', 'woocommerce' ); ?></h2>
-
-    <p><?php echo wp_kses_post( $order->get_formatted_shipping_address() ); ?></p>
-
-<?php }
+//do_action( 'woocommerce_email_customer_details', $order, $sent_to_admin, $plain_text, $email );
 
 /**
  * Show user-defined additional content - this is set in each email's settings.
  */
-if ( $additional_content ) {
+/*if ( $additional_content ) {
 	echo wp_kses_post( wpautop( wptexturize( $additional_content ) ) );
-}
-
+}*/
+//echo "@@@@@@@@@end";
 /*
  * @hooked WC_Emails::email_footer() Output the email footer
  */

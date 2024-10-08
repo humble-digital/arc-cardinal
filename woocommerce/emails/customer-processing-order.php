@@ -47,14 +47,15 @@ do_action( 'woocommerce_email_order_meta', $order, $sent_to_admin, $plain_text, 
 /*
  * Custom code to show only the shipping address.
  */
+/*
 if ( ! wc_ship_to_billing_address_only() && $order->needs_shipping_address() ) : ?>
 
-    <h2><?php esc_html_e( 'Shipping address', 'woocommerce' ); ?></h2>
+    <h2><?php esc_html_e( 'Ordered by:', 'woocommerce' ); ?></h2>
 
     <p><?php echo wp_kses_post( $order->get_formatted_shipping_address() ); ?></p>
 
-<?php endif;
-
+<?php endif; 
+*/
 /**
  * Show user-defined additional content - this is set in each email's settings.
  */

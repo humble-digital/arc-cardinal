@@ -11,7 +11,7 @@
 /**
  * Define Constants
  */
-define( 'CHILD_THEME_ARC_CARDINAL_VERSION', '2.0.0' );
+define( 'CHILD_THEME_ARC_CARDINAL_VERSION', '2.0.3' );
 
 
 require_once __DIR__ . '/_core.php';
@@ -56,9 +56,9 @@ function redirect_non_logged_in_users_to_login() {
 // Remove quantity inputs from cart page
 add_filter( 'woocommerce_cart_item_quantity', 'disable_quantity_input_on_cart', 10, 3 );
 function disable_quantity_input_on_cart( $product_quantity, $cart_item_key, $cart_item ) {
-    if ( is_cart() ) {
+    /*if ( is_cart() ) {
         return $cart_item['quantity'];
-    }
+    }*/
     return $product_quantity;
 }
 
@@ -385,3 +385,11 @@ function remove_shop_default_description($args){
 	$args['description'] = '';
 	return $args;
 }
+
+// Hide Multi-shipping Column from Orders
+function hide_yith_mas_column_css() {
+    echo '<style>
+        .column-yith_mas, .column-shipping_address { display: none; }
+    </style>';
+}
+add_action('admin_head', 'hide_yith_mas_column_css');

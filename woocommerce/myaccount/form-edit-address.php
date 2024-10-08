@@ -22,6 +22,7 @@ $page_title = ( 'billing' === $load_address ) ? esc_html__( 'Billing address', '
 do_action( 'woocommerce_before_edit_account_address_form' ); ?>
 
 <?php if ( ! $load_address ) : ?>
+	
 	<?php wc_get_template( 'myaccount/my-address.php' ); ?>
 <?php else : ?>
 

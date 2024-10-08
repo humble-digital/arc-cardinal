@@ -3,9 +3,592 @@ Theme Name: Arc Cardinal
 Author: Humble Agency
 Author URI: https://humble.agency
 Description: Custom theme built for Arc Cardinal
-Version: 2.0.0
+Version: 2.0.3
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: arc-cardinal
 Template: astra
 */
+
+a.button.empty-cart-button:hover {
+    background: #ffffff;
+}
+
+li.woocommerce-order-overview__total.total {
+    display: none;
+}
+
+p.woocommerce-notice.woocommerce-notice--success.woocommerce-thankyou-order-received {
+    font-size: 3em !important;
+}
+
+.woocommerce-checkout.woocommerce-order-received .woocommerce-order ul.woocommerce-order-overview li strong {
+    font-weight: 700;
+    color: #ffffff;
+    font-size: 2em;
+}
+
+
+h2.woocommerce-order-details__title {
+    background: transparent !important;
+    border: 0 !important;
+    font-size: 3em !important;
+    padding: 0 0 10px 0 !important;
+}
+
+.woocommerce-checkout.woocommerce-order-received .woocommerce-order .woocommerce-order-details table.shop_table {
+    box-shadow: none;
+    border: none !important;
+    padding: 3%;
+    background: #ffffff;
+}
+
+.elementor-widget-woocommerce-checkout-page .woocommerce .shop_table tfoot td, .elementor-widget-woocommerce-checkout-page .woocommerce .shop_table tfoot th {
+    color: #07103e  !important;
+    font-size: 1.1em !important;
+}
+
+th.woocommerce-table__product-name.product-name {
+ color: #07103e  !important;
+}
+
+td.woocommerce-table__product-name.product-name {
+    font-size: 1em !important;
+    font-weight: 600  !important;
+}
+
+
+label.woocommerce-form__label.woocommerce-form__label-for-checkbox.checkbox {
+    font-size: 1.1em !important;
+    font-weight: 600 !important;
+}
+
+span.woocommerce-terms-and-conditions-checkbox-text {
+    font-size: 1em;
+}
+
+.ywcmas_address_box {
+    margin-bottom: 0;
+    border-radius: 0px !important;
+    font-size: 1em !important;
+    padding: 15px !important;
+    position: relative;
+    border: 1px solid #07113d !important;
+}
+/*
+.woocommerce-account .ywcmas_address_box {
+    display: flex;
+    vertical-align: top;
+    width: 32%;
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.woocommerce-account  .ywcmas_address_box h5 {
+    margin: 20px 0 -20px 0;
+}
+
+.addresses {
+    display: flex;
+    justify-content: space-between;
+}
+
+h5.ywcmas_default_address_badge {
+    background: #fee019;
+    border-radius: 0;
+    font-family: 'Montserrat',sans-serif;
+    text-transform: uppercase;
+    font-size: 12px !important;
+    line-height: 1;
+    width: auto;
+    position: absolute;
+    right: 0px;
+    top: -20px;
+}*/
+
+li.woocommerce-order-overview__total.total {
+    display: none;
+}
+
+p.woocommerce-notice.woocommerce-notice--success.woocommerce-thankyou-order-received {
+    font-size: 3em !important;
+}
+
+.woocommerce-checkout.woocommerce-order-received .woocommerce-order ul.woocommerce-order-overview li strong {
+    font-weight: 700;
+    color: #ffffff;
+    font-size: 2em;
+}
+
+
+h2.woocommerce-order-details__title {
+    background: transparent !important;
+    border: 0 !important;
+    font-size: 3em !important;
+    padding: 0 0 10px 0 !important;
+}
+
+.woocommerce-checkout.woocommerce-order-received .woocommerce-order .woocommerce-order-details table.shop_table {
+    border-style: unset;
+    border-radius: 5px;
+    box-shadow: none;
+    border: none;
+    padding: 3%;
+    background: #ffffff;
+}
+
+.elementor-widget-woocommerce-checkout-page .woocommerce .shop_table tfoot td, .elementor-widget-woocommerce-checkout-page .woocommerce .shop_table tfoot th {
+    color: #07103e;
+    font-size: 1.1em !important;
+}
+
+th.woocommerce-table__product-name.product-name {
+ color: #07103e;
+}
+
+td.woocommerce-table__product-name.product-name {
+    font-size: 1em !important;
+    font-weight: 600;
+}
+
+
+.arc-billing-fields .woocommerce-billing-fields.arc-hide, 
+#ship-to-different-address, 
+.ywcmas_manage_addresses_cb_container, 
+.ywcmas_shipping_address_button_delete{ 
+    display: none;
+}
+.arc-multi-shipping .ywcmas_manage_addresses_tables_container{
+    display: none !important;
+}
+.arc-checkout-extra-sections{
+    background: #fff;
+    padding: 39px 39px 0 39px ;
+}
+.arc-checkout-extra-sections-notes{
+    background: #fff;
+    padding: 0px 7% 7% 7%;
+    border-radius: 0 0 5px 5px;
+}
+body .e-checkout__column.e-checkout__column-start .ywcmas_multiple_addresses_manager{
+    padding-top:15px;
+}
+div.pp_woocommerce .pp_close:before {
+    font-size:18px;
+    top:-3px;
+    font-family:sans-serif;
+}
+#arc-ship-to-different-address, 
+#arc-ship-to-multiple-different-address{
+    margin-bottom:0 ;
+}
+#arc-ship-to-different-address, 
+.arc-hide-title h3{
+    display: none;
+}
+.ywcmas_manage_addresses_tables_container p {
+    color: #07103e;
+    font-size: 1.2em;
+}
+.ywcmas_manage_addresses_viewer .ywcmas_shipping_address_button_new:not(.arc-always-show){
+    display: none;
+}
+select option[value="billing_address"]{
+     display: none !important;
+}
+.woocommerce-checkout .ywcmas_shipping_address_button_edit,
+.woocommerce-checkout .ywcmas_shipping_address_button_delete{
+    padding:10px 20px 10px 0;
+    margin-top:0px;
+    display:inline-block
+}
+.ywcmas_default_address_update_button{
+    font-family:sans-serif;
+    font-weight:700;
+    white-space:nowrap;
+}
+.ywcmas_shipping_address_button_new{
+    margin-top:25px;
+}
+#ywcmas_save_address{
+    margin-top:20px;
+}
+body.arc-ywcmas-loaded table tr td .ywcmas_select select, 
+body.arc-ywcmas-loaded .ywcmas_addresses_manager_address_select{
+    padding-right:25px !important;
+    border-radius:0 !important;
+}
+body .pp_pic_holder.pp_woocommerce{
+    top:10vh !important;
+}
+
+h5.ywcmas_default_address_badge{
+    background:#fee019; 
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    font-family: 'Montserrat',sans-serif;
+    text-transform: uppercase;
+    font-size: 12px !important;
+    margin-right:-7px;
+    margin-top:-3px;
+}
+.ur-field-item.field-phone  .ur-frontend-field.ur-masked-input, 
+body .woocommerce-address-fields__field-wrapper .input-text,
+body .woocommerce-address-fields__field-wrapper select, 
+body .ywcmas_qty .ywcmas_addresses_manager_table_qty,
+body .ywcmas_qty .ywcmas_addresses_manager_table_qty:focus,  
+body .ywcmas_select .ywcmas_addresses_manager_table_shipping_address_select, 
+body .ywcmas_addresses_manager_address_select{
+    color: #07103e;
+    font-size: 16px;
+    text-align: left;
+    background-color: #f5f4ff;
+    border-style: solid;
+    border-color: #07113d;
+    border-width: 1px;
+    margin: 0px 0px 10px;
+    padding: 6px 12px
+}
+.woocommerce-view-order .woocommerce-columns--addresses.addresses{
+    display: none;
+}
+.ywcmas_manage_addresses_viewer .ywcmas_single_address.ywcmas_address_box {
+    width: 100% !important;
+}
+.woocommerce-account .ywcmas_address_box{
+    display: inline-block;
+    vertical-align: top;
+    width: 33%;
+    
+}
+#arc-add-new-address{
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: inline-block;
+}
+
+.ywcmas_multiple_addresses_manager{
+    background: #fff;
+}
+.ywcmas_addresses_manager_table_product_name_td span.ywcmas_addresses_manager_table_img{
+    width:100%;
+    display: inline-block;
+    text-align: left;
+}
+.ywcmas_addresses_manager_table_product_name_td span.ywcmas_addresses_manager_table_img + span{
+    display:inline-block;
+    width:100%;
+}
+.ywcmas_addresses_manager_table_product_name_td span.ywcmas_addresses_manager_table_img img{
+    width:70%
+}
+.ywcmas_addresses_manager_table td {
+    vertical-align: middle;
+    display: table-cell;
+    padding: 3px 5px 0 5px;
+}
+
+.ywcmas_addresses_manager_table td.ywcmas_addresses_manager_table_product_name_td{
+    padding-left: 0;
+}
+.ywcmas_multiple_addresses_manager .ywcmas_manage_addresses_tables_container{
+    margin-bottom: 0;
+}
+.ywcmas_addresses_manager_table_qty_container{
+    position:relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.woocommerce-cart .input-text.qty, 
+.woocommerce-cart .input-text.qty:focus{
+    border-style: solid !important;
+    border-width: 1px 1px 2px 1px !important;!i;!;
+    border-radius: 0px 0px 0px 0px !important;!i;!;
+    color: #1C244B !important;!i;!;
+    border-color: #1C244B !important;!i;!;
+    transition: all 0.2s;
+    padding: .6em !important;
+    /* height: 64px !important; */
+}
+
+.ywcmas_multiple_addresses_manager .ywcmas_manage_addresses_tables_container{
+    margin-bottom: 0;
+}
+.ywcmas_addresses_manager_table_remove{
+    position:absolute;
+    right:-10px;
+    top:5px;
+}
+.form-row.place-order{
+    position: relative;
+}
+.arc-has-error{
+    border-color:red !important;
+}
+#arc-place_order-cover{
+    display: inline-block;
+    width: 100%;
+    position: absolute;
+    bottom:0;
+    height: 100px;
+/*    background: #590;*/
+    z-index: 9999999999;
+    outline: none;
+}
+.arc-has-error-msg{
+    font-size: .9em;
+    font-weight: 700;
+    background: #ffd100;
+    padding: 7px 10px;
+    color: #040427;
+    display: inline-block;
+    margin-top: 5px;
+}
+.ywcmas_addresses_manager_table_qty_td .ywcmas_qty {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 3px;
+    display:inline-block;
+    margin-top:5px
+}
+.ywcmas_addresses_manager_table_remove + .ywcmas_qty .ywcmas_addresses_manager_table_update_qty_button{
+/*    display:none !important;*/
+}
+/*****checkout css********/
+.ywcmas_manage_addresses_viewer {
+width: 100%;
+margin: 0 0 20px 0;
+}
+
+
+
+a.button.ywcmas_shipping_address_button_new{
+border: none!important;
+padding: 0;
+background: none !important;
+}
+
+
+span.ywcmas_addresses_manager_table_img img {
+border: 1px solid #07113D;
+border-radius: 0;
+}
+
+th.ywcmas_addresses_manager_table_qty_th, th.ywcmas_addresses_manager_table_product_th {
+text-align: left;
+font-family: sans-serif;
+font-weight: 400;
+text-transform: uppercase;
+padding: 0;
+} 
+
+.e-checkout__column.e-checkout__column-start .ywcmas_multiple_addresses_manager {
+    padding: 0 7% 3% 7% !important;
+    border-radius: 0 0 5px 5px!important;
+}
+
+.arc-checkout-extra-sections {
+    padding: 7% 7% 5% 7% !important;
+    border-radius: 5px 5px 0 0 !important;
+}
+
+.ywcmas_multiple_addresses_manager h3 {
+    margin-bottom: 0 !important;
+    font-size: 1.5em !important;
+}
+
+.ywcmas_address_box{
+    margin-bottom: 10px;
+    border-radius: 0px !important;
+    font-size: 1em !important;
+    padding: 7% !important;
+}
+
+.ywcmas_address_box address{
+   margin-bottom: 0 !important;
+   font-style: normal !important;
+    font-family: sans-serif;
+}
+
+.ywcmas_address_box h5{
+    margin-bottom: 0 !important;
+}
+
+.woocommerce-js #customer_details{
+    margin-bottom: 0 !important;
+}
+
+.ywcmas_shipping_address_button_new, .woocommerce-checkout .ywcmas_shipping_address_button_edit, .woocommerce-checkout .ywcmas_shipping_address_button_delete{
+    font-family:sans-serif !important;
+    text-transform:uppercase;
+}
+.woocommerce-order-received .woocommerce-customer-details, 
+.woocommerce-order-received th.woocommerce-table__product-table.product-total{
+    display: none;
+}
+.woocommerce-edit-address #ywcmas_add_new_address {
+    border: 1px dashed #07113d !important;
+    padding: 4% !important;
+}
+
+#ywcmas_add_new_address a.ywcmas_shipping_address_button_new {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding:7% 5% !important;
+}
+
+.ywcmas_add_new_address_inner {
+    margin: 10px 5px !important;
+}
+
+.ywcmas_custom_addresses_top h3 {
+margin-bottom: 25px !important;
+font-family: 'Miller-Banner',miller-banner,serif !important;
+font-size: 2.2em !important;
+    text-transform: capitalize;
+}
+
+.ywcmas_custom_addresses_top {
+margin-bottom: 25px !important;
+}
+
+div.pp_woocommerce .pp_close:before {
+    font-family: sans-serif;
+    content: url("/wp-content/uploads/2024/09/close.svg") !important;
+    width: 18px;
+    height: 18px;
+    top: 2px;
+    left: 5px;
+}
+div.pp_woocommerce .pp_close {
+    background-color: #fff;
+    top: 7px;
+    right: 7px;
+    font-size: 1.618em!important;
+}
+
+div.pp_woocommerce .pp_close:hover {
+    background-color: #ffffff;
+}
+
+.ywcmas_default_address_update_button:hover, .ywcmas_shipping_address_button_edit:hover{
+    text-decoration:underline !important;
+}
+
+/*my account */
+.ywcmas_address_box {
+padding: 2% !important;
+
+}
+
+.addresses {
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: flex-start;
+align-items: stretch;
+}
+
+.ywcmas_address_box {
+padding: 5% 2% 2% !important;
+display: flex !important;
+flex-direction: column;
+justify-content: space-between;
+align-items: stretch;
+position: relative;
+margin: 1%;
+width: 31%!important;
+}
+.ywcmas_manage_addresses_viewer .ywcmas_address_box {
+    margin: 1% 0;
+}
+h5.ywcmas_default_address_badge {
+background: #fee019;
+border-radius: 5px;
+-webkit-border-radius: 5px;
+font-family: 'Montserrat',sans-serif;
+text-transform: uppercase;
+font-size: 12px !important;
+margin-right: -7px;
+margin-top: -3px;
+position: absolute;
+right: 15px;
+top:10px;
+}
+
+
+/*end my account*/
+@media(min-width:900px) and (max-width:10000px){
+    .woocommerce-account .ywcmas_address_box, 
+    #ywcmas_add_new_address{
+        min-height: 280px;
+    }
+}
+
+@media(min-width:300px) and (max-width:900px){
+    .ywcmas_single_address.ywcmas_address_box, 
+    #ywcmas_add_new_address{
+        width: 100% !important;
+    }
+    .woocommerce-edit-address #ywcmas_add_new_address{
+         padding:0 !important;
+     }
+    #ywcmas_add_new_address a.ywcmas_shipping_address_button_new{
+        padding:5% !important;
+    }
+    .woocommerce-account #ywcmas_add_new_address{
+        width:100%;
+    }
+    .ywcmas_manage_addresses_viewer .ywcmas_address_box{
+        margin:1% 0 1% 0;
+    }
+}
+@media(min-width:600px) and (max-width:950px){
+    .ywcmas_addresses_manager_table_product_name_td span.ywcmas_addresses_manager_table_img img{
+        width:40%
+    }
+    .ywcmas_addresses_manager_table_qty_container{
+        text-align:left;
+    }
+    .ywcmas_qty{
+        width:15%;
+    }
+    body.woocommerce-checkout .woocommerce table.shop_table_responsive tr td.ywcmas_addresses_manager_table_qty_td input.ywcmas_addresses_manager_table_qty{
+        width:100%;
+    }
+    .ywcmas_select{
+        width:75%
+    }
+    .ywcmas_addresses_manager_table_remove{
+        position:absolute;
+        right:-15px;
+        top:5px;
+    }
+}
+
+@media(min-width:300px) and (max-width:599px){
+    .ywcmas_addresses_manager_table_product_name_td span.ywcmas_addresses_manager_table_img img{
+        width:40%
+    }
+    .ywcmas_addresses_manager_table_qty_container{
+        text-align:left;
+    }
+    .ywcmas_qty{
+        width:25%;
+    }
+    body.woocommerce-checkout .woocommerce table.shop_table_responsive tr td.ywcmas_addresses_manager_table_qty_td input.ywcmas_addresses_manager_table_qty{
+        width:100%;
+    }
+    .ywcmas_select{
+        width:100%; 
+        margin:15px 0;
+    }
+    .ywcmas_addresses_manager_table_remove{
+        position:absolute;
+        right:-15px;
+        top:5px;
+    }
+}

